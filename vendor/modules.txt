@@ -539,7 +539,7 @@ gopkg.in/inf.v0
 gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
-# k8s.io/api v0.0.0-20190624085159-95846d7ef82a
+# k8s.io/api v0.0.0-20190718183219-b59d8169aab5
 k8s.io/api/core/v1
 # k8s.io/apimachinery v0.0.0-20190624085041-961b39a1baa0
 k8s.io/apimachinery/pkg/apis/meta/v1
@@ -580,7 +580,7 @@ k8s.io/apimachinery/pkg/runtime/serializer/versioning
 k8s.io/apimachinery/pkg/util/framer
 k8s.io/apimachinery/pkg/util/yaml
 k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
-# k8s.io/client-go v0.0.0-20190620085101-78d2af792bab
+# k8s.io/client-go v0.0.0-20190718183610-8e956561bbf5
 k8s.io/client-go/tools/remotecommand
 k8s.io/client-go/rest
 k8s.io/client-go/transport/spdy
