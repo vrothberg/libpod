@@ -31,7 +31,9 @@ BUILDTAGS ?= \
 	$(shell hack/systemd_tag.sh) \
 	exclude_graphdriver_devicemapper \
 	seccomp \
-	varlink
+	varlink \
+	service
+
 PYTHON ?= $(shell command -v python python3)
 
 GO_BUILD=$(GO) build
