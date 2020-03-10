@@ -148,7 +148,7 @@ func (r *Runtime) PruneVolumes(ctx context.Context) ([]string, []error) {
 			}
 			continue
 		}
-		vol.newVolumeEvent(events.Prune)
+		vol.NewVolumeEvent(events.Prune)
 		prunedIDs = append(prunedIDs, vol.Name())
 	}
 	return prunedIDs, pruneErrors

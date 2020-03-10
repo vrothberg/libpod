@@ -111,7 +111,7 @@ func (r *Runtime) newVolume(ctx context.Context, options ...VolumeCreateOption) 
 	if err := r.state.AddVolume(volume); err != nil {
 		return nil, errors.Wrapf(err, "error adding volume to state")
 	}
-	defer volume.newVolumeEvent(events.Create)
+	defer volume.NewVolumeEvent(events.Create)
 	return volume, nil
 }
 
@@ -204,7 +204,7 @@ func (r *Runtime) removeVolume(ctx context.Context, v *Volume, force bool) error
 		}
 	}
 
-	defer v.newVolumeEvent(events.Remove)
+	defer v.NewVolumeEvent(events.Remove)
 	logrus.Debugf("Removed volume %s", v.Name())
 	return removalErr
 }

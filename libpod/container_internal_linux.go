@@ -750,7 +750,7 @@ func (c *Container) checkpoint(ctx context.Context, options ContainerCheckpointO
 		return err
 	}
 
-	defer c.newContainerEvent(events.Checkpoint)
+	defer c.NewContainerEvent(events.Checkpoint)
 
 	if options.TargetFile != "" {
 		if err = c.exportCheckpoint(options.TargetFile, options.IgnoreRootfs); err != nil {

@@ -205,6 +205,6 @@ func (c *Container) Commit(ctx context.Context, destImage string, options Contai
 	if err != nil {
 		return nil, err
 	}
-	defer c.newContainerEvent(events.Commit)
+	defer c.NewContainerEvent(events.Commit)
 	return c.runtime.imageRuntime.NewFromLocal(id)
 }

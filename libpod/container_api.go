@@ -129,7 +129,7 @@ func (c *Container) StartAndAttach(ctx context.Context, streams *AttachStreams, 
 	case err := <-attachChan:
 		return nil, err
 	case <-startedChan:
-		c.newContainerEvent(events.Attach)
+		c.NewContainerEvent(events.Attach)
 	}
 
 	return attachChan, nil
@@ -210,7 +210,7 @@ func (c *Container) Kill(signal uint) error {
 
 	c.state.StoppedByUser = true
 
-	c.newContainerEvent(events.Kill)
+	c.NewContainerEvent(events.Kill)
 
 	return c.save()
 }
@@ -308,7 +308,7 @@ func (c *Container) Exec(tty, privileged bool, env map[string]string, cmd []stri
 		// TODO handle this better
 		return define.ExecErrorCodeGeneric, errors.Wrapf(err, "error saving exec sessions %s for container %s", sessionID, c.ID())
 	}
-	c.newContainerEvent(events.Exec)
+	c.NewContainerEvent(events.Exec)
 	logrus.Debugf("Successfully started exec session %s in container %s", sessionID, c.ID())
 
 	// Unlock so other processes can use the container
@@ -388,7 +388,7 @@ func (c *Container) Attach(streams *AttachStreams, keys string, resize <-chan re
 		return errors.Wrapf(define.ErrCtrStateInvalid, "can only attach to created or running containers")
 	}
 
-	c.newContainerEvent(events.Attach)
+	c.NewContainerEvent(events.Attach)
 	return c.attach(streams, keys, resize, false, nil)
 }
 
@@ -428,7 +428,7 @@ func (c *Container) HTTPAttach(httpCon net.Conn, httpBuf *bufio.ReadWriter, stre
 
 	logrus.Infof("Performing HTTP Hijack attach to container %s", c.ID())
 
-	c.newContainerEvent(events.Attach)
+	c.NewContainerEvent(events.Attach)
 	return c.ociRuntime.HTTPAttach(c, httpCon, httpBuf, streams, detachKeys, cancel)
 }
 
@@ -469,7 +469,7 @@ func (c *Container) Mount() (string, error) {
 		return "", errors.Wrapf(define.ErrCtrStateInvalid, "cannot mount container %s as it is being removed", c.ID())
 	}
 
-	defer c.newContainerEvent(events.Mount)
+	defer c.NewContainerEvent(events.Mount)
 	return c.mount()
 }
 
@@ -499,7 +499,7 @@ func (c *Container) Unmount(force bool) error {
 			return errors.Wrapf(define.ErrInternal, "can't unmount %s last mount, it is still in use", c.ID())
 		}
 	}
-	defer c.newContainerEvent(events.Unmount)
+	defer c.NewContainerEvent(events.Unmount)
 	return c.unmount(force)
 }
 
@@ -520,7 +520,7 @@ func (c *Container) Pause() error {
 	if c.state.State != define.ContainerStateRunning {
 		return errors.Wrapf(define.ErrCtrStateInvalid, "%q is not running, can't pause", c.state.State)
 	}
-	defer c.newContainerEvent(events.Pause)
+	defer c.NewContainerEvent(events.Pause)
 	return c.pause()
 }
 
@@ -538,7 +538,7 @@ func (c *Container) Unpause() error {
 	if c.state.State != define.ContainerStatePaused {
 		return errors.Wrapf(define.ErrCtrStateInvalid, "%q is not paused, can't unpause", c.ID())
 	}
-	defer c.newContainerEvent(events.Unpause)
+	defer c.NewContainerEvent(events.Unpause)
 	return c.unpause()
 }
 
@@ -558,7 +558,7 @@ func (c *Container) Export(path string) error {
 		return errors.Wrapf(define.ErrCtrStateInvalid, "cannot mount container %s as it is being removed", c.ID())
 	}
 
-	defer c.newContainerEvent(events.Mount)
+	defer c.NewContainerEvent(events.Mount)
 	return c.export(path)
 }
 
@@ -683,7 +683,7 @@ func (c *Container) Cleanup(ctx context.Context) error {
 	if len(c.state.ExecSessions) != 0 {
 		return errors.Wrapf(define.ErrCtrStateInvalid, "container %s has active exec sessions, refusing to clean up", c.ID())
 	}
-	defer c.newContainerEvent(events.Cleanup)
+	defer c.NewContainerEvent(events.Cleanup)
 	return c.cleanup(ctx)
 }
 
@@ -753,7 +753,7 @@ func (c *Container) Sync() error {
 		}
 	}
 
-	defer c.newContainerEvent(events.Sync)
+	defer c.NewContainerEvent(events.Sync)
 	return nil
 }
 
@@ -932,6 +932,6 @@ func (c *Container) Restore(ctx context.Context, options ContainerCheckpointOpti
 			return err
 		}
 	}
-	defer c.newContainerEvent(events.Restore)
+	defer c.NewContainerEvent(events.Restore)
 	return c.restore(ctx, options)
 }

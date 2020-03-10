@@ -131,6 +131,7 @@ func (r *Runtime) newContainer(ctx context.Context, rSpec *spec.Spec, options ..
 			return nil, errors.Wrapf(err, "error running container create option")
 		}
 	}
+
 	return r.setupContainer(ctx, ctr)
 }
 
@@ -350,7 +351,7 @@ func (r *Runtime) setupContainer(ctx context.Context, ctr *Container) (_ *Contai
 	} else if err := r.state.AddContainer(ctr); err != nil {
 		return nil, err
 	}
-	ctr.newContainerEvent(events.Create)
+	ctr.NewContainerEvent(events.Create)
 	return ctr, nil
 }
 
@@ -556,7 +557,7 @@ func (r *Runtime) removeContainer(ctx context.Context, c *Container, force bool,
 	// Set container as invalid so it can no longer be used
 	c.valid = false
 
-	c.newContainerEvent(events.Remove)
+	c.NewContainerEvent(events.Remove)
 
 	if !removeVolume {
 		return cleanupErr

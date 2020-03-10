@@ -61,7 +61,7 @@ func (p *Pod) Start(ctx context.Context) (map[string]error, error) {
 	if len(ctrErrors) > 0 {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error starting some containers")
 	}
-	defer p.newPodEvent(events.Start)
+	defer p.NewPodEvent(events.Start)
 	return nil, nil
 }
 
@@ -141,7 +141,7 @@ func (p *Pod) StopWithTimeout(ctx context.Context, cleanup bool, timeout int) (m
 	if len(ctrErrors) > 0 {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error stopping some containers")
 	}
-	defer p.newPodEvent(events.Stop)
+	defer p.NewPodEvent(events.Stop)
 	return nil, nil
 }
 
@@ -210,7 +210,7 @@ func (p *Pod) Pause() (map[string]error, error) {
 	if len(ctrErrors) > 0 {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error pausing some containers")
 	}
-	defer p.newPodEvent(events.Pause)
+	defer p.NewPodEvent(events.Pause)
 	return nil, nil
 }
 
@@ -270,7 +270,7 @@ func (p *Pod) Unpause() (map[string]error, error) {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error unpausing some containers")
 	}
 
-	defer p.newPodEvent(events.Unpause)
+	defer p.NewPodEvent(events.Unpause)
 	return nil, nil
 }
 
@@ -323,8 +323,8 @@ func (p *Pod) Restart(ctx context.Context) (map[string]error, error) {
 	if len(ctrErrors) > 0 {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error stopping some containers")
 	}
-	p.newPodEvent(events.Stop)
-	p.newPodEvent(events.Start)
+	p.NewPodEvent(events.Stop)
+	p.NewPodEvent(events.Start)
 	return nil, nil
 }
 
@@ -389,7 +389,7 @@ func (p *Pod) Kill(signal uint) (map[string]error, error) {
 	if len(ctrErrors) > 0 {
 		return ctrErrors, errors.Wrapf(define.ErrCtrExists, "error killing some containers")
 	}
-	defer p.newPodEvent(events.Kill)
+	defer p.NewPodEvent(events.Kill)
 	return nil, nil
 }
 

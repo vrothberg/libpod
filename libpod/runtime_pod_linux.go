@@ -143,7 +143,7 @@ func (r *Runtime) NewPod(ctx context.Context, options ...PodCreateOption) (_ *Po
 			return nil, err
 		}
 	}
-	pod.newPodEvent(events.Create)
+	pod.NewPodEvent(events.Create)
 	return pod, nil
 }
 
@@ -343,7 +343,7 @@ func (r *Runtime) removePod(ctx context.Context, p *Pod, removeCtrs, force bool)
 
 	// Mark pod invalid
 	p.valid = false
-	p.newPodEvent(events.Remove)
+	p.NewPodEvent(events.Remove)
 
 	// Deallocate the pod lock
 	if err := p.lock.Free(); err != nil {

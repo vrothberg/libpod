@@ -285,7 +285,7 @@ func (c *Container) handleExitFile(exitFile string, fi os.FileInfo) error {
 	c.state.Exited = true
 
 	// Write an event for the container's death
-	c.newContainerExitedEvent(c.state.ExitCode)
+	c.NewContainerExitedEvent(c.state.ExitCode)
 
 	return nil
 }
@@ -336,7 +336,7 @@ func (c *Container) handleRestartPolicy(ctx context.Context) (restarted bool, er
 		return false, errors.Wrapf(define.ErrInternal, "invalid container state encountered in restart attempt!")
 	}
 
-	c.newContainerEvent(events.Restart)
+	c.NewContainerEvent(events.Restart)
 
 	// Increment restart count
 	c.state.RestartCount += 1
@@ -1017,7 +1017,7 @@ func (c *Container) init(ctx context.Context, retainRetries bool) error {
 		}
 	}
 
-	defer c.newContainerEvent(events.Init)
+	defer c.NewContainerEvent(events.Init)
 	return c.completeNetworkSetup()
 }
 
@@ -1156,7 +1156,7 @@ func (c *Container) start() error {
 		}
 	}
 
-	defer c.newContainerEvent(events.Start)
+	defer c.NewContainerEvent(events.Start)
 
 	return c.save()
 }
@@ -1204,7 +1204,7 @@ func (c *Container) stop(timeout uint) error {
 		return err
 	}
 
-	c.newContainerEvent(events.Stop)
+	c.NewContainerEvent(events.Stop)
 
 	return nil
 }
@@ -1261,7 +1261,7 @@ func (c *Container) restartWithTimeout(ctx context.Context, timeout uint) (err e
 		return errors.Wrapf(define.ErrCtrStateInvalid, "unable to restart a container in a paused or unknown state")
 	}
 
-	c.newContainerEvent(events.Restart)
+	c.NewContainerEvent(events.Restart)
 
 	if c.state.State == define.ContainerStateRunning {
 		conmonPID := c.state.ConmonPID

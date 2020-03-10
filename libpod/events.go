@@ -17,8 +17,8 @@ func (r *Runtime) newEventer() (events.Eventer, error) {
 	return events.NewEventer(options)
 }
 
-// newContainerEvent creates a new event based on a container
-func (c *Container) newContainerEvent(status events.Status) {
+// NewContainerEvent creates a new event based on a container
+func (c *Container) NewContainerEvent(status events.Status) {
 	e := events.NewEvent(status)
 	e.ID = c.ID()
 	e.Name = c.Name()
@@ -29,8 +29,8 @@ func (c *Container) newContainerEvent(status events.Status) {
 	}
 }
 
-// newContainerExitedEvent creates a new event for a container's death
-func (c *Container) newContainerExitedEvent(exitCode int32) {
+// NewContainerExitedEvent creates a new event for a container's death
+func (c *Container) NewContainerExitedEvent(exitCode int32) {
 	e := events.NewEvent(events.Exited)
 	e.ID = c.ID()
 	e.Name = c.Name()
@@ -42,8 +42,8 @@ func (c *Container) newContainerExitedEvent(exitCode int32) {
 	}
 }
 
-// newPodEvent creates a new event for a libpod pod
-func (p *Pod) newPodEvent(status events.Status) {
+// NewPodEvent creates a new event for a libpod pod
+func (p *Pod) NewPodEvent(status events.Status) {
 	e := events.NewEvent(status)
 	e.ID = p.ID()
 	e.Name = p.Name()
@@ -53,8 +53,8 @@ func (p *Pod) newPodEvent(status events.Status) {
 	}
 }
 
-// newSystemEvent creates a new event for libpod as a whole.
-func (r *Runtime) newSystemEvent(status events.Status) {
+// NewSystemEvent creates a new event for libpod as a whole.
+func (r *Runtime) NewSystemEvent(status events.Status) {
 	e := events.NewEvent(status)
 	e.Type = events.System
 
@@ -63,8 +63,8 @@ func (r *Runtime) newSystemEvent(status events.Status) {
 	}
 }
 
-// newVolumeEvent creates a new event for a libpod volume
-func (v *Volume) newVolumeEvent(status events.Status) {
+// NewVolumeEvent creates a new event for a libpod volume
+func (v *Volume) NewVolumeEvent(status events.Status) {
 	e := events.NewEvent(status)
 	e.Name = v.Name()
 	e.Type = events.Volume
