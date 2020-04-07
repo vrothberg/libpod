@@ -638,8 +638,8 @@ build-no-cgo:
 .PHONY: vendor
 vendor:
 	export GO111MODULE=on \
-		$(GO) mod tidy && \
 		$(GO) mod vendor && \
+		$(GO) mod tidy && \
 		$(GO) mod verify
 
 .PHONY: vendor-in-container
