@@ -273,9 +273,10 @@ func Pull(ctx context.Context, rawImage string, options entities.ImagePullOption
 	params.Set("credentials", options.Credentials)
 	params.Set("overrideArch", options.OverrideArch)
 	params.Set("overrideOS", options.OverrideOS)
-	if options.TLSVerify != types.OptionalBoolUndefined {
-		val := bool(options.TLSVerify == types.OptionalBoolTrue)
-		params.Set("tlsVerify", strconv.FormatBool(val))
+	if options.SkipTLSVerify != types.OptionalBoolUndefined {
+		// Note: we have to verify if skipped is false.
+		verifyTLS := bool(options.SkipTLSVerify == types.OptionalBoolFalse)
+		params.Set("tlsVerify", strconv.FormatBool(verifyTLS))
 	}
 	params.Set("allTags", strconv.FormatBool(options.AllTags))
 
