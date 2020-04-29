@@ -141,8 +141,8 @@ type ImagePullOptions struct {
 	Quiet bool
 	// SignaturePolicy to use when pulling.  Ignored for remote calls.
 	SignaturePolicy string
-	// TLSVerify to enable/disable HTTPS and certificate verification.
-	TLSVerify types.OptionalBool
+	// SkipTLSVerify to skip HTTPS and certificate verification.
+	SkipTLSVerify types.OptionalBool
 }
 
 // ImagePullReport is the response from pulling one or more images.

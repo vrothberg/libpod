@@ -99,7 +99,7 @@ func imagePull(cmd *cobra.Command, args []string) error {
 	// which is important to implement a sane way of dealing with defaults of
 	// boolean CLI flags.
 	if cmd.Flags().Changed("tls-verify") {
-		pullOptsAPI.TLSVerify = types.NewOptionalBool(pullOptions.TLSVerifyCLI)
+		pullOptsAPI.SKipTLSVerify = types.NewOptionalBool(!pullOptions.TLSVerifyCLI)
 	}
 	if pullOptsAPI.Authfile != "" {
 		if _, err := os.Stat(pullOptsAPI.Authfile); err != nil {
