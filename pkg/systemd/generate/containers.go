@@ -38,9 +38,6 @@ type containerInfo struct {
 	// BoundToServices are the services this service binds to.  Note that this
 	// service runs after them.
 	BoundToServices []string
-	// RequiredServices are services this service requires. Note that this
-	// service runs before them.
-	RequiredServices []string
 	// PodmanVersion for the header. Will be set internally. Will be auto-filled
 	// if left empty.
 	PodmanVersion string
@@ -67,10 +64,6 @@ RefuseManualStart=yes
 RefuseManualStop=yes
 BindsTo={{- range $index, $value := .BoundToServices -}}{{if $index}} {{end}}{{ $value }}.service{{end}}
 After={{- range $index, $value := .BoundToServices -}}{{if $index}} {{end}}{{ $value }}.service{{end}}
-{{- end}}
-{{- if .RequiredServices}}
-Requires={{- range $index, $value := .RequiredServices -}}{{if $index}} {{end}}{{ $value }}.service{{end}}
-Before={{- range $index, $value := .RequiredServices -}}{{if $index}} {{end}}{{ $value }}.service{{end}}
 {{- end}}
 
 [Service]
@@ -101,11 +94,58 @@ func ContainerUnit(ctr *libpod.Container, options entities.GenerateSystemdOption
 	if err != nil {
 		return "", err
 	}
-	return createContainerSystemdUnit(info, options)
+	return executeContainerTemplate(info, options)
 }
 
-// createContainerSystemdUnit creates a systemd unit file for a container.
-func createContainerSystemdUnit(info *containerInfo, options entities.GenerateSystemdOptions) (string, error) {
+func generateContainerInfo(ctr *libpod.Container, options entities.GenerateSystemdOptions) (*containerInfo, error) {
+	timeout := ctr.StopTimeout()
+	if options.StopTimeout != nil {
+		timeout = *options.StopTimeout
+	}
+
+	config := ctr.Config()
+	conmonPidFile := config.ConmonPidFile
+	if conmonPidFile == "" {
+		return nil, errors.Errorf("conmon PID file path is empty, try to recreate the container with --conmon-pidfile flag")
+	}
+
+	createCommand := []string{}
+	if config.CreateCommand != nil {
+		createCommand = config.CreateCommand
+	} else if options.New {
+		return nil, errors.Errorf("cannot use --new on container %q: no create command found", ctr.ID())
+	}
+
+	nameOrID, serviceName := containerServiceName(ctr, options)
+
+	info := containerInfo{
+		ServiceName:       serviceName,
+		ContainerNameOrID: nameOrID,
+		RestartPolicy:     options.RestartPolicy,
+		PIDFile:           conmonPidFile,
+		StopTimeout:       timeout,
+		GenerateTimestamp: true,
+		CreateCommand:     createCommand,
+	}
+
+	return &info, nil
+}
+
+// containerServiceName returns the nameOrID and the service name of the
+// container.
+func containerServiceName(ctr *libpod.Container, options entities.GenerateSystemdOptions) (string, string) {
+	nameOrID := ctr.ID()
+	if options.Name {
+		nameOrID = ctr.Name()
+	}
+	serviceName := fmt.Sprintf("%s%s%s", options.ContainerPrefix, options.Separator, nameOrID)
+	return nameOrID, serviceName
+}
+
+// executeContainerTemplate executes the container template on the specified
+// containerInfo.  Note that the containerInfo is also post processed and
+// completed, which allows for an easier unit testing.
+func executeContainerTemplate(info *containerInfo, options entities.GenerateSystemdOptions) (string, error) {
 	if err := validateRestartPolicy(info.RestartPolicy); err != nil {
 		return "", err
 	}
@@ -181,11 +221,10 @@ func createContainerSystemdUnit(info *containerInfo, options entities.GenerateSy
 	}
 
 	// Sort the slices to assure a deterministic output.
-	sort.Strings(info.RequiredServices)
 	sort.Strings(info.BoundToServices)
 
 	// Generate the template and compile it.
-	templ, err := template.New("systemd_service_file").Parse(containerTemplate)
+	templ, err := template.New("container_template").Parse(containerTemplate)
 	if err != nil {
 		return "", errors.Wrap(err, "error parsing systemd service template")
 	}
@@ -209,48 +248,4 @@ func createContainerSystemdUnit(info *containerInfo, options entities.GenerateSy
 		return "", errors.Wrap(err, "error generating systemd unit")
 	}
 	return path, nil
-}
-
-func generateContainerInfo(ctr *libpod.Container, options entities.GenerateSystemdOptions) (*containerInfo, error) {
-	timeout := ctr.StopTimeout()
-	if options.StopTimeout != nil {
-		timeout = *options.StopTimeout
-	}
-
-	config := ctr.Config()
-	conmonPidFile := config.ConmonPidFile
-	if conmonPidFile == "" {
-		return nil, errors.Errorf("conmon PID file path is empty, try to recreate the container with --conmon-pidfile flag")
-	}
-
-	createCommand := []string{}
-	if config.CreateCommand != nil {
-		createCommand = config.CreateCommand
-	} else if options.New {
-		return nil, errors.Errorf("cannot use --new on container %q: no create command found", ctr.ID())
-	}
-
-	nameOrID, serviceName := containerServiceName(ctr, options)
-
-	info := containerInfo{
-		ServiceName:       serviceName,
-		ContainerNameOrID: nameOrID,
-		RestartPolicy:     options.RestartPolicy,
-		PIDFile:           conmonPidFile,
-		StopTimeout:       timeout,
-		GenerateTimestamp: true,
-		CreateCommand:     createCommand,
-	}
-	return &info, nil
-}
-
-// containerServiceName returns the nameOrID and the service name of the
-// container.
-func containerServiceName(ctr *libpod.Container, options entities.GenerateSystemdOptions) (string, string) {
-	nameOrID := ctr.ID()
-	if options.Name {
-		nameOrID = ctr.Name()
-	}
-	serviceName := fmt.Sprintf("%s%s%s", options.ContainerPrefix, options.Separator, nameOrID)
-	return nameOrID, serviceName
 }
