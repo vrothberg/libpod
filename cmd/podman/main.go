@@ -66,5 +66,4 @@ func main() {
 	}
 
 	Execute()
-	os.Exit(0)
 }

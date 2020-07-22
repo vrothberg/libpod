@@ -190,6 +190,16 @@ endif
 .PHONY: podman
 podman: bin/podman
 
+.PHONY: podman-coverage
+podman-coverage:
+	$(GO) test \
+		-cover -coverprofile coverprofile -covermode=count \
+		-coverpkg=./... \
+		-gcflags '$(GCFLAGS)' \
+		-asmflags '$(ASMFLAGS)' \
+		-ldflags '$(LDFLAGS_PODMAN)' \
+		-tags "$(BUILDTAGS)" -c -o ./bin/$@ $(PROJECT)/cmd/podman
+
 .PHONY: bin/podman-remote
 bin/podman-remote: .gopathok $(SOURCES) go.mod go.sum $(PODMAN_VARLINK_DEPENDENCIES) ## Build with podman on remote environment
 	$(GO_BUILD) $(BUILDFLAGS) -gcflags '$(GCFLAGS)' -asmflags '$(ASMFLAGS)' -ldflags '$(LDFLAGS_PODMAN)' -tags "${REMOTETAGS}" -o $@ $(PROJECT)/cmd/podman
