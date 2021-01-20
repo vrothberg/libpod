@@ -87,7 +87,39 @@ func (o *StopOptions) ToParams() (url.Values, error) {
 	return params, nil
 }
 
-// WithTimeout
+// WithAll
+func (o *StopOptions) WithAll(value bool) *StopOptions {
+	v := &value
+	o.All = v
+	return o
+}
+
+// GetAll
+func (o *StopOptions) GetAll() bool {
+	var all bool
+	if o.All == nil {
+		return all
+	}
+	return *o.All
+}
+
+// WithIgnore
+func (o *StopOptions) WithIgnore(value bool) *StopOptions {
+	v := &value
+	o.Ignore = v
+	return o
+}
+
+// GetIgnore
+func (o *StopOptions) GetIgnore() bool {
+	var ignore bool
+	if o.Ignore == nil {
+		return ignore
+	}
+	return *o.Ignore
+}
+
+// WithToimeout
 func (o *StopOptions) WithTimeout(value uint) *StopOptions {
 	v := &value
 	o.Timeout = v

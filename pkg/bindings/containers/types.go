@@ -137,6 +137,8 @@ type InspectOptions struct {
 //go:generate go run ../generator/generator.go KillOptions
 // KillOptions are optional options for killing containers
 type KillOptions struct {
+	All    *bool
+	Signal *string
 }
 
 //go:generate go run ../generator/generator.go PauseOptions
@@ -181,6 +183,8 @@ type WaitOptions struct {
 //go:generate go run ../generator/generator.go StopOptions
 // StopOptions are optional options for stopping containers
 type StopOptions struct {
+	All     *bool
+	Ignore  *bool
 	Timeout *uint
 }
 

@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/containers/podman/v2/libpod"
@@ -18,7 +17,6 @@ import (
 	"github.com/containers/podman/v2/pkg/domain/filters"
 	"github.com/containers/podman/v2/pkg/domain/infra/abi"
 	"github.com/containers/podman/v2/pkg/ps"
-	"github.com/containers/podman/v2/pkg/signal"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
@@ -184,55 +182,38 @@ func KillContainer(w http.ResponseWriter, r *http.Request) {
 	runtime := r.Context().Value("runtime").(*libpod.Runtime)
 	decoder := r.Context().Value("decoder").(*schema.Decoder)
 	query := struct {
+		All    bool   `schema:"all"`
 		Signal string `schema:"signal"`
-	}{
-		Signal: "KILL",
-	}
+	}{}
 	if err := decoder.Decode(&query, r.URL.Query()); err != nil {
 		utils.Error(w, "Something went wrong.", http.StatusBadRequest, errors.Wrapf(err, "failed to parse parameters for %s", r.URL.String()))
 		return
 	}
 
-	sig, err := signal.ParseSignalNameOrNumber(query.Signal)
-	if err != nil {
-		utils.InternalServerError(w, err)
-		return
-	}
+	// Now use the ABI implementation to prevent us from having duplicate
+	// code.
+	containerEngine := abi.ContainerEngine{Libpod: runtime}
 	name := utils.GetName(r)
-	con, err := runtime.LookupContainer(name)
+	options := entities.KillOptions{
+		All:    query.All,
+		Signal: query.Signal,
+	}
+	report, err := containerEngine.ContainerKill(r.Context(), []string{name}, options)
 	if err != nil {
-		utils.ContainerNotFound(w, name, err)
-		return
-	}
-
-	state, err := con.State()
-	if err != nil {
-		utils.InternalServerError(w, err)
-		return
-	}
-
-	// If the Container is stopped already, send a 409
-	if state == define.ContainerStateStopped || state == define.ContainerStateExited {
-		utils.Error(w, fmt.Sprintf("Container %s is not running", name), http.StatusConflict, errors.New(fmt.Sprintf("Cannot kill Container %s, it is not running", name)))
-		return
-	}
-
-	signal := uint(sig)
-
-	err = con.Kill(signal)
-	if err != nil {
-		utils.Error(w, "Something went wrong.", http.StatusInternalServerError, errors.Wrapf(err, "unable to kill Container %s", name))
-		return
-	}
-
-	// Docker waits for the container to stop if the signal is 0 or
-	// SIGKILL.
-	if !utils.IsLibpodRequest(r) && (signal == 0 || syscall.Signal(signal) == syscall.SIGKILL) {
-		if _, err = con.Wait(); err != nil {
-			utils.Error(w, "Something went wrong.", http.StatusInternalServerError, errors.Wrapf(err, "failed to wait for Container %s", con.ID()))
+		if errors.Cause(err) == define.ErrNoSuchCtr {
+			utils.ContainerNotFound(w, name, err)
 			return
 		}
+
+		utils.InternalServerError(w, err)
+		return
 	}
+
+	if report[0].Err != nil {
+		utils.InternalServerError(w, report[0].Err)
+		return
+	}
+
 	// Success
 	utils.WriteResponse(w, http.StatusNoContent, nil)
 }

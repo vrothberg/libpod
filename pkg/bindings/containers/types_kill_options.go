@@ -86,3 +86,35 @@ func (o *KillOptions) ToParams() (url.Values, error) {
 	}
 	return params, nil
 }
+
+// WithAll
+func (o *KillOptions) WithAll(value bool) *KillOptions {
+	v := &value
+	o.All = v
+	return o
+}
+
+// GetAll
+func (o *KillOptions) GetAll() bool {
+	var all bool
+	if o.All == nil {
+		return all
+	}
+	return *o.All
+}
+
+// WithSignal
+func (o *KillOptions) WithSignal(value string) *KillOptions {
+	v := &value
+	o.Signal = v
+	return o
+}
+
+// GetSignal
+func (o *KillOptions) GetSignal() string {
+	var signal string
+	if o.Signal == nil {
+		return signal
+	}
+	return *o.Signal
+}

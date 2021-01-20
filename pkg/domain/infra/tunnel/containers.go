@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -83,14 +82,6 @@ func (ic *ContainerEngine) ContainerUnpause(ctx context.Context, namesOrIds []st
 
 func (ic *ContainerEngine) ContainerStop(ctx context.Context, namesOrIds []string, opts entities.StopOptions) ([]*entities.StopReport, error) {
 	reports := []*entities.StopReport{}
-	for _, cidFile := range opts.CIDFiles {
-		content, err := ioutil.ReadFile(cidFile)
-		if err != nil {
-			return nil, errors.Wrap(err, "error reading CIDFile")
-		}
-		id := strings.Split(string(content), "\n")[0]
-		namesOrIds = append(namesOrIds, id)
-	}
 	ctrs, err := getContainersByContext(ic.ClientCtx, opts.All, opts.Ignore, namesOrIds)
 	if err != nil {
 		return nil, err
@@ -126,14 +117,6 @@ func (ic *ContainerEngine) ContainerStop(ctx context.Context, namesOrIds []strin
 }
 
 func (ic *ContainerEngine) ContainerKill(ctx context.Context, namesOrIds []string, opts entities.KillOptions) ([]*entities.KillReport, error) {
-	for _, cidFile := range opts.CIDFiles {
-		content, err := ioutil.ReadFile(cidFile)
-		if err != nil {
-			return nil, errors.Wrap(err, "error reading CIDFile")
-		}
-		id := strings.Split(string(content), "\n")[0]
-		namesOrIds = append(namesOrIds, id)
-	}
 	ctrs, err := getContainersByContext(ic.ClientCtx, opts.All, false, namesOrIds)
 	if err != nil {
 		return nil, err
