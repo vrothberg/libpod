@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/containers/buildah"
+	buildahDefine "github.com/containers/buildah/define"
 	"github.com/containers/buildah/imagebuildah"
 	buildahCLI "github.com/containers/buildah/pkg/cli"
 	"github.com/containers/buildah/pkg/parse"
@@ -195,7 +196,7 @@ func build(cmd *cobra.Command, args []string) error {
 	var contextDir string
 	if len(args) > 0 {
 		// The context directory could be a URL.  Try to handle that.
-		tempDir, subDir, err := imagebuildah.TempDirForURL("", "buildah", args[0])
+		tempDir, subDir, err := buildahDefine.TempDirForURL("", "buildah", args[0])
 		if err != nil {
 			return errors.Wrapf(err, "error prepping temporary context directory")
 		}
