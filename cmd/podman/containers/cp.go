@@ -193,7 +193,7 @@ func copyFromContainer(container string, containerPath string, hostPath string) 
 			ChownFiles:    &idPair,
 			IgnoreDevices: true,
 		}
-		if !containerInfo.IsDir && (!hostInfo.IsDir || hostInfoErr != nil) {
+		if (!containerInfo.IsDir && !hostInfo.IsDir) || hostInfoErr != nil {
 			// If we're having a file-to-file copy, make sure to
 			// rename accordingly.
 			putOptions.Rename = map[string]string{filepath.Base(containerInfo.LinkTarget): hostBaseName}
@@ -318,10 +318,10 @@ func copyToContainer(container string, containerPath string, hostPath string) er
 		}
 
 		getOptions := buildahCopiah.GetOptions{
-			// Unless the specified points to ".", we want to copy the base directory.
+			// Unless the specified path points to ".", we want to copy the base directory.
 			KeepDirectoryNames: hostInfo.IsDir && filepath.Base(hostPath) != ".",
 		}
-		if !hostInfo.IsDir && (!containerInfo.IsDir || containerInfoErr != nil) {
+		if (!hostInfo.IsDir && !containerInfo.IsDir) || containerInfoErr != nil {
 			// If we're having a file-to-file copy, make sure to
 			// rename accordingly.
 			getOptions.Rename = map[string]string{filepath.Base(hostInfo.LinkTarget): containerBaseName}
