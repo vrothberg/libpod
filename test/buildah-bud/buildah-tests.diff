@@ -1,4 +1,4 @@
-From a51192239fafdb59f26c9ddaab1ca9fcac2bb664 Mon Sep 17 00:00:00 2001
+From 974687047354b6d1df5f46adda6a1077c2154071 Mon Sep 17 00:00:00 2001
 From: Ed Santiago <santiago@redhat.com>
 Date: Tue, 9 Feb 2021 17:28:05 -0700
 Subject: [PATCH] tweaks for running buildah tests under podman
@@ -9,10 +9,10 @@ Signed-off-by: Ed Santiago <santiago@redhat.com>
  1 file changed, 23 insertions(+), 3 deletions(-)
 
 diff --git a/tests/helpers.bash b/tests/helpers.bash
-index 4dc3a7dbda13..003575f48cec 100644
+index b85f99d3..f869562e 100644
 --- a/tests/helpers.bash
 +++ b/tests/helpers.bash
-@@ -140,15 +140,35 @@ function run_buildah() {
+@@ -147,15 +147,35 @@ function run_buildah() {
          --retry)         retry=3;        shift;;  # retry network flakes
      esac
 
@@ -45,9 +45,9 @@ index 4dc3a7dbda13..003575f48cec 100644
 
          # stdout is only emitted upon error; this echo is to help a debugger
 -        echo "\$ $BUILDAH_BINARY $*"
--        run timeout --foreground --kill=10 $BUILDAH_TIMEOUT ${BUILDAH_BINARY} ${REGISTRY_OPTS} ${ROOTDIR_OPTS} "$@"
+-        run timeout --foreground --kill=10 $BUILDAH_TIMEOUT ${BUILDAH_BINARY} ${BUILDAH_REGISTRY_OPTS} ${ROOTDIR_OPTS} "$@"
 +        echo "\$ $cmd_basename $*"
-+        run timeout --foreground --kill=10 $BUILDAH_TIMEOUT ${podman_or_buildah} --registries-conf ${TESTSDIR}/registries.conf --root ${TESTDIR}/root --runroot ${TESTDIR}/runroot --storage-driver ${STORAGE_DRIVER} "$@"
++        run timeout --foreground --kill=10 $BUILDAH_TIMEOUT ${podman_or_buildah} ${BUILDAH_REGISTRY_OPTS} ${ROOTDIR_OPTS} "$@"
          # without "quotes", multiple lines are glommed together into one
          if [ -n "$output" ]; then
              echo "$output"
