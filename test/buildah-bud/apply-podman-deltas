@@ -124,6 +124,17 @@ errmsg "no such file or directory" \
        "context must be a directory" \
        "bud with specified context should fail if context contains not-existing Dockerfile"
 
+# 2021-05-19 #10377
+# And yes, the trailing space after --tag is needed (bug is in buildah repo);
+# so are the quintuple backslashes
+errmsg "tag TEST1: invalid reference format: repository name must be lowercase"\
+       "Error: error committing base container: error normalizing name \\\\\"TEST1\\\\\": repository name must be lowercase" \
+       "bud with bad --tag "
+
+errmsg "tag TEST2: invalid reference format: repository name must be lowercase"\
+       "Error: error setting image names to .*: error tagging image .*: error normalizing name \\\\\"TEST2\\\\\": error normalizing name \\\\\"TEST2\\\\\": repository name must be lowercase" \
+       "bud with bad --tag "
+
 ###############################################################################
 # BEGIN tests that don't make sense under podman due to fundamental differences
 skip "N/A under podman" \
