@@ -22,6 +22,7 @@ var (
 		Args:              validate.NoArgs,
 		Short:             "Display the Podman Version Information",
 		RunE:              version,
+		PersistentPreRunE: noOp,
 		ValidArgsFunction: completion.AutocompleteNone,
 	}
 	versionFormat string
